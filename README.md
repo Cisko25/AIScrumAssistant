@@ -2,9 +2,6 @@
 
 ## What is this App?
 
-See attached project file as a demo.  
-You must use Visual Studio or any other IDE that can run **ASP.NET Core**, an open-source web development framework for .NET MVC apps.
-
 This is an **AI-powered Scrum Assistant** built as an ASP.NET Core MVC web application. It’s designed to help teams make sprint planning and grooming easier.
 
 - **Integrates with Jira** to fetch your project tasks.
