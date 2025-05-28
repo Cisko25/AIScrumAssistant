@@ -1,0 +1,106 @@
+﻿@model ScrumAssistant.Models.JiraTicketListViewModel
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+@{
+    // Projects: List of (Key, Name)
+    var projects = ViewBag.Projects as List<(string Key, string Name)>;
+    var selectedProjectKey = ViewBag.SelectedProjectKey as string;
+}
+
+<style>
+    .btn-light-purple {
+        background-color: #e6d6fa;
+        color: #563d7c;
+        border: 1px solid #cbbbe2;
+        transition: background 0.2s;
+    }
+
+        .btn-light-purple:hover,
+        .btn-light-purple:focus {
+            background-color: #d3bff0;
+            color: #3d286b;
+            border: 1px solid #a998c3;
+        }
+</style>
+
+<h1>🤖 Your AI Scrum Buddy</h1>
+<p class="lead" style="color: #888;">Let’s review and analyze your current sprint tasks—powered by AI!</p>
+
+
+<form method="get" asp-action="Index" class="mb-3" style="margin-bottom: 20px;">
+    <label for="projectKey">Project:</label>
+    <select id="projectKey" name="projectKey" onchange="this.form.submit()">
+        @if (projects != null)
+        {
+            foreach (var proj in projects)
+            {
+                if (proj.Key == selectedProjectKey)
+                {
+                    <option value="@proj.Key" selected>@proj.Key - @proj.Name</option>
+                }
+                else
+                {
+                    <option value="@proj.Key">@proj.Key - @proj.Name</option>
+                }
+            }
+        }
+    </select>
+    <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="Search by key or summary..." />
+    <button type="submit">Search</button>
+</form>
+
+@if (Model.Tickets != null && Model.Tickets.Count > 0)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Key</th>
+                <th>Summary</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach(var ticket in Model.Tickets)
+        {
+            <tr>
+                <td>@ticket.Key</td>
+                <td>@ticket.Summary</td>
+                <td>
+                    <form asp-action="Analyze" method="post">
+                        <input type="hidden" name="key" value="@ticket.Key" />
+                        <input type="hidden" name="summary" value="@ticket.Summary" />
+                        <input type="hidden" name="description" value="@ticket.Description" />
+                        <button type="submit" class="btn btn-light-purple">Analyze</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <div style="margin-top:15px;">
+        @if (Model.TotalPages > 1)
+        {
+            <span>Page: </span>
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                if (i == Model.CurrentPage)
+                {
+                    <strong>@i</strong>
+                }
+                else
+                {
+                    <a asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-projectKey="@selectedProjectKey"
+                       asp-route-searchTerm="@Model.SearchTerm">@i</a>
+                }
+                @: 
+            }
+        }
+    </div>
+}
+else
+{
+    <p>No tickets found.</p>
+}
